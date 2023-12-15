@@ -1,0 +1,595 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Named Schema Registration API
+  description: API endpoints to support Named Schema registration
+tags:
+  - name: Data Dictionary
+    description: Endpoints
+  - name: Data Dictionary Attributes
+    description: Endpoints
+  - name: Named Schema
+    description: Endpoints
+  - name: Origin Type
+    description: Endpoints
+  - name: Risk Score
+    description: Endpoints
+  - name: Semantic Score
+    description: Endpoints
+  - name: Third Party - Jena Fuseki
+    description: Endpoints
+  - name: Third Party - Linchen
+    description: Endpoints
+  - name: Third Party - Named Schema Assembly
+    description: Endpoints
+  - name: Third Party - Semantic Annotator
+    description: Endpoints
+paths:
+  /data-dictionary/upload:
+    post:
+      tags:
+        - Data Dictionary
+      description: ""
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                origin_type_id:
+                  example: any
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+        "422":
+          description: Unprocessable Entity
+        "500":
+          description: Internal Server Error
+  /data-dictionary/all:
+    get:
+      tags:
+        - Data Dictionary
+      description: ""
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DataDictionary"
+        "400":
+          description: Bad Request
+  "/data-dictionary/download/{id}":
+    get:
+      tags:
+        - Data Dictionary
+      description: ""
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+  "/data-dictionary/{id}":
+    delete:
+      tags:
+        - Data Dictionary
+      description: ""
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: ""
+  "/data-dictionary/{id}/update-step/{step}":
+    put:
+      tags:
+        - Data Dictionary
+      description: ""
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: step
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /data-dictionary/all/training:
+    get:
+      tags:
+        - Data Dictionary
+      description: ""
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /data-dictionary/all/training/logs:
+    get:
+      tags:
+        - Data Dictionary
+      description: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrainingLog"
+        "400":
+          description: Bad Request
+  "/data-dictionary/{id}/is-running":
+    get:
+      tags:
+        - Data Dictionary
+      description: ""
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  "/data-attributes/{dictionaryId}":
+    get:
+      tags:
+        - Data Dictionary Attributes
+      description: ""
+      parameters:
+        - name: dictionaryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DataDictionaryAttribute"
+        "400":
+          description: Bad Request
+  "/data-attributes/{id}/risk-score/{riskScoreId}":
+    put:
+      tags:
+        - Data Dictionary Attributes
+      description: ""
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: riskScoreId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  "/data-attributes/{id}/semantic-score/{semanticScoreId}":
+    put:
+      tags:
+        - Data Dictionary Attributes
+      description: ""
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: semanticScoreId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /data-attributes/data-classes:
+    put:
+      tags:
+        - Data Dictionary Attributes
+      description: ""
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payload:
+                  example: any
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+  "/named-schema/{dictionaryId}":
+    get:
+      tags:
+        - Named Schema
+      description: ""
+      parameters:
+        - name: dictionaryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NamedSchema"
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+  "/named-schema/{dictionaryId}/json":
+    get:
+      tags:
+        - Named Schema
+      description: ""
+      parameters:
+        - name: dictionaryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+  /named-schema:
+    put:
+      tags:
+        - Named Schema
+      description: ""
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NamedSchema"
+              type: object
+        required: true
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+  /origin-type:
+    get:
+      tags:
+        - Origin Type
+      description: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OriginType"
+        "500":
+          description: Internal Server Error
+  /risk-score:
+    get:
+      tags:
+        - Risk Score
+      description: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RiskScore"
+        "500":
+          description: Internal Server Error
+  /semantic-score:
+    get:
+      tags:
+        - Semantic Score
+      description: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SemanticScore"
+        "500":
+          description: Internal Server Error
+  "/jena-fuseki/dictionary/{id}/update":
+    post:
+      tags:
+        - Third Party - Jena Fuseki
+      description: ""
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+  "/ontology/{label}":
+    get:
+      tags:
+        - Third Party - Linchen
+      description: ""
+      parameters:
+        - name: label
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ontology"
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+  "/named-schema-assembly/{dictionaryId}/generate":
+    post:
+      tags:
+        - Third Party - Named Schema Assembly
+      description: ""
+      parameters:
+        - name: dictionaryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+  "/semantic-annotator/dictionary/{id}/run-classifier":
+    get:
+      tags:
+        - Third Party - Semantic Annotator
+      description: ""
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+  "/semantic-annotator/dictionary/{id}/run-trainer":
+    get:
+      tags:
+        - Third Party - Semantic Annotator
+      description: ""
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+servers:
+  - url: /api/v1
+components:
+  schemas:
+    DataDictionary:
+      type: object
+      properties:
+        id:
+          type: number
+        path:
+          type: string
+        name:
+          type: string
+        current_step:
+          type: number
+        update_on:
+          type: string
+        created_at:
+          type: string
+        origin_type_id:
+          type: number
+        origin_type:
+          type: string
+    DataDictionaryAttribute:
+      type: object
+      properties:
+        id:
+          type: number
+        data_dictionary_id:
+          type: number
+        table_name:
+          type: string
+        field_name:
+          type: string
+        description:
+          type: string
+        data_type:
+          type: string
+        data_class:
+          type: string
+        data_class_domain:
+          type: string
+        max_score_index:
+          type: string
+        max_similarity_score:
+          type: number
+        total_score:
+          type: string
+        semantic_score:
+          $ref: "#/components/schemas/SemanticScore"
+        risk_score:
+          $ref: "#/components/schemas/RiskScore"
+    NamedSchema:
+      type: object
+      properties:
+        dictionaryId:
+          type: number
+        tableName:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        hostActor:
+          type: string
+        mainActor:
+          type: string
+        originType:
+          type: string
+        typeSchema:
+          type: string
+          example: Standard / Commercial
+    OriginType:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+    RiskScore:
+      type: object
+      properties:
+        id:
+          type: number
+        group_name:
+          type: string
+        sensitivity_level:
+          type: string
+        description:
+          type: string
+        impact:
+          type: string
+        example:
+          type: string
+        score:
+          type: string
+        risk_level:
+          type: string
+    SemanticScore:
+      type: object
+      properties:
+        id:
+          type: number
+        group_name:
+          type: string
+        semantic_type:
+          type: string
+        description:
+          type: string
+        score:
+          type: string
+        semantic_type_letter:
+          type: string
+    TrainingLog:
+      type: object
+      properties:
+        id:
+          type: number
+        data_dictionary_id:
+          type: number
+        is_executing:
+          type: boolean
+        is_ok:
+          type: boolean
+        error_message:
+          type: string
+        update_on:
+          type: string
+    Ontology:
+      type: object
+      properties:
+        uri:
+          type: string
+        label:
+          type: string
+        comment:
+          type: string
+        relation:
+          type: string
+        similarity:
+          type: number

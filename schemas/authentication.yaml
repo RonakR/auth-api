@@ -1,0 +1,1366 @@
+openapi: 3.0.0
+paths:
+  "/healthcheck":
+    get:
+      operationId: MainController_execute
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '400':
+          description: Bad Request
+  "/auth/users":
+    post:
+      operationId: CreateUserController_execute
+      summary: Creates a user in Cloud Directory
+      description: |-
+        Entitlement required: manageUserGroups (Manage users and groups),
+        or manageAllUserGroups (Synchronize users and groups), or manageUserStandardGroups
+        (Manage users and standard groups).
+        Note: You only need one entitlement, but you can have more than one.
+
+        The users are created for a specific tenant that is specified in the request.
+        Users are either created to use Cloud Directory as an identity source or as a
+        just-in-time provisioning sequence when the user is authenticated at a remote
+        identity source such as an enterprise authentication.
+
+        By default, an email is sent with the password to the user that was created,
+        unless its a federated user. Federated users do not get an email notification.
+        The email templates for branding are at
+        "notifications/user_management/profile/{locale}/account_created_email.xml" and
+        "notifications/user_management/profile/{locale}/account_created_email_with_no_password.xml".
+        Pass in the themeId query parameter to brand the email templates for notifications.
+        To turn off email notifications, send the notifications option
+        "urn:ietf:params:scim:schemas:extension:ibm:2.0:Notification":
+        {"notifyType":"NONE"} in the payload.
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateUserInputDto"
+      responses:
+        '200':
+          description: User created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/CreateUserOutputDto"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+    patch:
+      operationId: UpdateUserController_execute
+      summary: Replaces the authenticated users attributes in Cloud Directory
+      description: |-
+        Entitlement required: anyone (Any authenticated user).
+
+        On Success, the returned response includes the user and group membership details.
+        The HTTP PUT method is used to replace the resource's attributes. For example, clients
+        that previously retrieved the entire resource and revised it, can replace the
+        resource by using an HTTP PUT.
+        The user's groups cannot be modified and are ignored in the payload. Group
+        membership is managed by using the PUT /v2.0/Groups/{id} and PATCH
+        /v2.0/Groups/{id} API.
+
+        By default, an email is sent to the user that includes the changed attributes.
+        The email template for branding is at
+        "notifications/user_management/profile/{locale}/user_profile_modified_email.xml".
+        Pass in the themeId query parameter to brand the email template for notifications.
+        To turn off email notifications, send the notifications option
+        "urn:ietf:params:scim:schemas:extension:ibm:2.0:Notification":
+        {"notifyType":"NONE"} in the payload.
+
+        This API requires an authenticated user's access token that is generated from an
+        application client during sign-on. This API does not support the use of an API client-generated access token.
+        Send a valid user access token in the authorization header, by using the bearer
+        authentication scheme.
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateUserInputDto"
+      responses:
+        '204':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UpdateUserOutputDto"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/confirmation":
+    post:
+      operationId: ConfirmCreateUserController_execute
+      summary: Confirms registration of a new user.
+      description: |-
+        Amazon Cognito doesn't evaluate Identity and Access Management (IAM)
+        policies in requests for this API operation. For this operation,
+        you can't use IAM credentials to authorize requests, and you can't grant
+        IAM permissions in policies. For more information about authorization models
+        in Amazon Cognito
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ConfirmCreateUserInputDto"
+      responses:
+        '204':
+          description: User confirmed successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/me":
+    post:
+      operationId: MeUserController_execute
+      summary: Retrieves the account details of the authenticated user in Cloud Directory
+      description: |-
+        Entitlement required: anyone (any authenticated user).
+
+        On Success, the returned response includes the user and group membership details. The group membership that is returned includes the group ID and displayName attributes.
+
+        This API requires an authenticated user's access token that is generated from an application client during sign-on. This API does not support the use of an API client-generated access token.
+        Send a valid user access token in the authorization header, by using the bearer authentication scheme.
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/MeUserInputDto"
+      responses:
+        '200':
+          description: User details
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/refresh-token":
+    post:
+      operationId: RefreshTokenController_execute
+      summary: Get the access token
+      description: Initiates sign-in for a user in the Amazon Cognito user directory
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RefreshTokenInputDto"
+      responses:
+        '200':
+          description: Get Token
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/reset-password-request":
+    post:
+      operationId: ResetPasswordRequestController_execute
+      summary: Initiate a reset password request by using an authentication mechanism
+      description: Initiate a reset password request by using an authentication mechanism
+      parameters:
+      - name: filter[theme_id]
+        required: true
+        in: query
+        schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ResetPasswordRequestInputDto"
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/sign-in":
+    post:
+      operationId: SignInController_execute
+      summary: Sign in
+      description: Sign in
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/SignInInputDto"
+      responses:
+        '200':
+          description: User logged
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SignInOutputDto"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/update-password":
+    post:
+      operationId: UpdatePasswordController_execute
+      summary: Change the authenticated users password.
+      description: |-
+        Entitlement required: anyone (Any authenticated user).
+
+        When the password is changed, a notification is optionally sent to the user to
+        indicate that a password change was performed. By default, the notification is
+        sent by email, but this can be overridden by the notifyType value in the
+        Notifications object. See Model under Data Type. The email templates for
+        branding are at
+        "notifications/user_management/login/{locale}/user_password_change_show_email.xml"
+        and "notifications/user_management/login/{locale}/user_password_change_not_show_email.xml".
+        Pass in the themeId query parameter to brand the email template for notifications.
+        To turn off email notifications, send the notifications option
+        "urn:ietf:params:scim:schemas:extension:ibm:2.0:Notification":
+        {"notifyType":"NONE"} in the payload.
+
+        Passwords cannot be changed for federated users.
+
+        This API requires an authenticated user's access token that is generated from
+        an application client during sign-on. This API does not support the use of an
+        API client-generated access token.
+        Send a valid user access token in the authorization header, by using the bearer
+        authentication scheme.
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdatePasswordInputDto"
+      responses:
+        '204':
+          description: Password updated successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/delete-user":
+    post:
+      operationId: DeleteUserController_execute
+      summary: Delete the authenticated users Cloud Directory account
+      description: |-
+        Entitlement required: anyone (Any authenticated user).
+
+        By default, an email is sent to the user that the account was deleted. The email template for branding is at "notifications/user_management/profile/{locale}/account_deleted_email.xml". Pass in the themeId query parameter to brand the email template for notifications.
+        To turn off email notifications, send notifyType=NONE as a query parameter.
+
+        This API requires an authenticated user's access token that is generated from an application client during sign-on. This API does not support the use of an API client-generated access token.
+        Send a valid user access token in the authorization header, by using the bearer authentication scheme.
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/DeleteUserInputDto"
+      responses:
+        '204':
+          description: User deleted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/{id}":
+    delete:
+      operationId: DeleteUserByIdController_execute
+      summary: Deletes a user from a specified Account ID
+      description: Deletes a user from a specified Account ID
+      parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        '204':
+          description: User deleted
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+    get:
+      operationId: GetUserByIdController_execute
+      summary: Get user details by user ID.
+      description: Get user details by user ID.
+      parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        '200':
+          description: User details
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth":
+    get:
+      operationId: FindUserController_execute
+      summary: Get user details by query filter.
+      description: Get user details by query filter.
+      parameters:
+      - name: filter[expand]
+        required: false
+        in: query
+        schema:
+          enum:
+          - externalData
+          type: string
+      - name: filter[email]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[username]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[last_name]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[first_name]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[name]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[external_id]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[id]
+        required: false
+        in: query
+        schema: {}
+      responses:
+        '200':
+          description: User details
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/list-in-provider":
+    get:
+      operationId: FindUserIBMVerifyController_execute
+      summary: Get user details in IBM Security Verify.
+      description: Get user details in IBM Security Verify.
+      parameters:
+      - name: filter[email]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[username]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[last_name]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[first_name]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[name]
+        required: false
+        in: query
+        schema: {}
+      - name: filter[external_id]
+        required: false
+        in: query
+        schema: {}
+      responses:
+        '200':
+          description: User details
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/reset-password":
+    post:
+      operationId: ResetPasswordController_execute
+      summary: Initiate a reset password request by using an authentication mechanism
+      description: Initiate a reset password request by using an authentication mechanism
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ResetPasswordInputDto"
+      responses:
+        '200':
+          description: Reset password request initiated successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ResetPasswordOutputDto"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/resend-confirmation":
+    post:
+      operationId: ResendConfirmCreateUserController_execute
+      summary: Resends the confirmation (for confirmation of registration) to a specific
+        user in the user pool.
+      description: |-
+        Amazon Cognito doesn't evaluate Identity and Access Management
+            (IAM) policies in requests for this API operation. For this operation,
+            you can't use IAM credentials to authorize requests, and you can't grant
+            IAM permissions in policies. For more information about authorization models
+            in Amazon Cognito
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ResendConfirmCreateUserInputDto"
+      responses:
+        '204':
+          description: Resend confirmation successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/list-users":
+    post:
+      operationId: ListUsersController_execute
+      summary: List users
+      description: List users
+      parameters:
+      - name: email
+        required: true
+        in: query
+        schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ListUsersDto"
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/users/language":
+    patch:
+      operationId: UpdateLanguageController_execute
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateUserLanguageInputDto"
+      responses:
+        '204':
+          description: User updated language
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UpdateUserOutputDto"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+  "/auth/users/{id}":
+    patch:
+      operationId: UpdateUserByIdController_execute
+      summary: Update a user
+      description: Update a  user
+      parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateUserByIdInputDto"
+      responses:
+        '204':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UpdateUserByIdOutputDto"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSchema"
+      tags:
+      - Auth
+info:
+  title: Authentication API
+  description: API to access manager
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  schemas:
+    ErrorSchema:
+      type: object
+      properties:
+        code:
+          type: number
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
+      required:
+      - code
+      - error
+      - message
+      - details
+    CreateUserInputDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - personal
+          - business
+          - namedschema
+        name:
+          type: string
+          example: Dr. Geneva Ernser
+        first_name:
+          type: string
+          example: Savanna
+        last_name:
+          type: string
+          example: Prohaska
+        username:
+          type: string
+          example: Jazlyn.Dooley@gmail.com
+        email:
+          type: string
+          example: Linwood_Connelly4@gmail.com
+        password:
+          type: string
+          example: Aa@123456
+        confirmPassword:
+          type: string
+          example: Aa@123456
+        phone:
+          type: string
+          example: "(99) 98877-9988"
+        language:
+          type: string
+          example: en-us
+      required:
+      - type
+      - name
+      - first_name
+      - last_name
+      - username
+      - email
+      - password
+      - confirmPassword
+      - phone
+      - language
+    Email:
+      type: object
+      properties:
+        type:
+          type: string
+          example: email
+        value:
+          type: string
+          example: john@wick.com
+      required:
+      - type
+      - value
+    Meta:
+      type: object
+      properties:
+        created:
+          type: string
+          example: '2000-10-10T10:10:10Z'
+        location:
+          type: string
+          example: https://dwallet.verify.ibm.com/v2.0/Users/6410040PSL
+        lastModified:
+          type: string
+          example: '2000-10-10T10:10:10Z'
+        resourceType:
+          type: string
+          example: User
+      required:
+      - created
+      - location
+      - lastModified
+      - resourceType
+    Name:
+      type: object
+      properties:
+        formatted:
+          type: string
+          example: John Wick
+        familyName:
+          type: string
+          example: Wick
+        givenName:
+          type: string
+          example: John
+      required:
+      - formatted
+      - familyName
+      - givenName
+    UrnIETFParamsScimSchemasExtensionIBM20User:
+      type: object
+      properties:
+        userCategory:
+          type: string
+          example: regular
+        twoFactorAuthentication:
+          type: string
+          example: false
+        realm:
+          type: string
+          example: cloudIdentityRealm
+        pwdChangedTime:
+          type: string
+          example: '2000-10-10T10:10:10Z'
+      required:
+      - userCategory
+      - twoFactorAuthentication
+      - realm
+      - pwdChangedTime
+    CreateUserOutputDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 6410040PSL
+        emails:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Email"
+        meta:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Meta"
+        displayName:
+          type: string
+          example: John Wick
+        schemas:
+          type: array
+          example:
+          - urn:ietf:params:scim:schemas:core:2.0:User
+          - urn:ietf:params:scim:schemas:extension:ibm:2.0:User
+        name:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Name"
+        urn:ietf:params:scim:schemas:extension:ibm:2.0:User:
+          "$ref": "#/components/schemas/UrnIETFParamsScimSchemasExtensionIBM20User"
+        active:
+          type: string
+          example: true
+        userName:
+          type: string
+          example: john@wick.com
+        phoneNumbers:
+          type: string
+          example:
+          - type: work
+            value: "(99) 98877-9988"
+      required:
+      - id
+      - emails
+      - meta
+      - displayName
+      - schemas
+      - name
+      - urn:ietf:params:scim:schemas:extension:ibm:2.0:User
+      - active
+      - userName
+      - phoneNumbers
+    ConfirmCreateUserInputDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: jade_leannon77@gmail.com
+        code:
+          type: string
+          example: '123456'
+      required:
+      - username
+      - code
+    MeUserInputDto:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: b9725800-40c8-4804-9828-e37127a458cc
+      required:
+      - access_token
+    RefreshTokenInputDto:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+          example: 402ce43e-49db-4c39-8883-524b1ee67561
+      required:
+      - refresh_token
+    ResetPasswordRequestInputDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: sophia93@yahoo.com
+      required:
+      - username
+    SignInInputDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: Finn.Rodriguez
+        password:
+          type: string
+          example: HVh2u5vSDMQm15H
+      required:
+      - username
+      - password
+    SignInOutputDto:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: a04e9a65-9dd5-4e57-8016-fae89dd88d30
+        refresh_token:
+          type: string
+          example: a0ae0183-555e-4192-a715-9838b68dc124
+        id_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: number
+          example: 7200
+        account_id:
+          type: string
+          example: d3662e4d-74ec-48a0-a1c3-27fb44df9d9c
+        email:
+          type: string
+          example: dejuan_bernier@gmail.com
+      required:
+      - access_token
+      - refresh_token
+      - id_token
+      - token_type
+      - expires_in
+      - account_id
+      - email
+    UpdateUserInputDto:
+      type: object
+      properties:
+        account_id:
+          type: string
+          example: fe541c2b-839e-44ed-887e-5b9f6a0ce3db
+        access_token:
+          type: string
+          example: 8b65e600-31bf-46db-927d-5ff9f2b8d462
+        username:
+          type: string
+          example: username
+        title:
+          type: string
+          example: Johnston - Parker
+        first_name:
+          type: string
+          example: Rosalinda
+        last_name:
+          type: string
+          example: Wiegand
+        language:
+          type: string
+          example: pt-br
+        phones:
+          type: string
+          example:
+          - type: mobile
+            value: "(99) 98877-9988"
+        addresses:
+          type: string
+          example:
+          - locality: South Mateo
+            country: Liberia
+            region: Pennsylvania
+            formatted: 7774 Karine Points
+            primary: true
+            streetAddress: Pfannerstill Cove
+            postalCode: '20570'
+            type: work
+      required:
+      - account_id
+      - access_token
+      - username
+      - title
+      - first_name
+      - last_name
+      - language
+      - phones
+      - addresses
+    Emails:
+      type: object
+      properties:
+        type:
+          type: string
+          example: email
+        value:
+          type: string
+          example: john@wick.com
+      required:
+      - type
+      - value
+    UpdateUserOutputDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 6410040PSL
+        emails:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Emails"
+        meta:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Meta"
+        displayName:
+          type: string
+          example: John Wick
+        schemas:
+          type: array
+          example:
+          - urn:ietf:params:scim:schemas:core:2.0:User
+          - urn:ietf:params:scim:schemas:extension:ibm:2.0:User
+        name:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Name"
+        urn:ietf:params:scim:schemas:extension:ibm:2.0:User:
+          "$ref": "#/components/schemas/UrnIETFParamsScimSchemasExtensionIBM20User"
+        active:
+          type: string
+          example: true
+        userName:
+          type: string
+          example: john@wick.com
+        phoneNumbers:
+          type: string
+          example:
+          - type: work
+            value: "(99) 98877-9988"
+      required:
+      - id
+      - emails
+      - meta
+      - displayName
+      - schemas
+      - name
+      - urn:ietf:params:scim:schemas:extension:ibm:2.0:User
+      - active
+      - userName
+      - phoneNumbers
+    UpdatePasswordInputDto:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: 5f757850-ea5a-4ba6-8d3b-eb9e179cad54
+        currentPassword:
+          type: string
+          example: Aa@123456
+        newPassword:
+          type: string
+          example: Aa@789012
+      required:
+      - access_token
+      - currentPassword
+      - newPassword
+    DeleteUserInputDto:
+      type: object
+      properties:
+        account_id:
+          type: string
+          example: 5624a346-62bf-4b12-b91c-cdf81ce83ad9
+        access_token:
+          type: string
+          example: I5gIPaKBkrvPlQPKfDG1A5vcHScSmil0
+      required:
+      - account_id
+      - access_token
+    ResetPasswordInputDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: jana_bogan@yahoo.com
+        code:
+          type: string
+          example: "./pV(FZOs("
+        password:
+          type: string
+          example: 3eT9Nu1EwtpTetI
+          minLength: 8
+        confirmPassword:
+          type: string
+          example: Hrx4ojNAgoj_4JP
+          minLength: 8
+      required:
+      - username
+      - code
+      - password
+      - confirmPassword
+    ResetPasswordOutputDto:
+      type: object
+      properties: {}
+    ResendConfirmCreateUserInputDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: ramona_renner48@hotmail.com
+      required:
+      - username
+    ListUsersDto:
+      type: object
+      properties: {}
+    UpdateUserLanguageInputDto:
+      type: object
+      properties:
+        account_id:
+          type: string
+          example: 0fbd4420-1f61-481e-a9ba-63ff1bfdcbbb
+        access_token:
+          type: string
+          example: eaaa9603-91d6-4935-be09-80c274048603
+        language:
+          type: string
+          example: pt-br
+      required:
+      - account_id
+      - access_token
+      - language
+    UpdateUserByIdInputDto:
+      type: object
+      properties:
+        account_id:
+          type: string
+          example: 5d8566fd-6861-4022-a559-63c6600580ba
+        title:
+          type: string
+          example: Stokes Inc
+        first_name:
+          type: string
+          example: Liliana
+        last_name:
+          type: string
+          example: Koepp
+        phones:
+          type: string
+          example:
+          - type: mobile
+            value: "(99) 98877-9988"
+        addresses:
+          type: string
+          example:
+          - locality: South Jaylinfurt
+            country: Andorra
+            region: Mississippi
+            formatted: 30515 Lockman Land
+            primary: true
+            streetAddress: Abdiel Pine
+            postalCode: 51431-2325
+            type: work
+      required:
+      - account_id
+      - title
+      - first_name
+      - last_name
+      - phones
+      - addresses
+    UpdateUserByIdOutputDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 6410040PSL
+        emails:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Email"
+        meta:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Meta"
+        displayName:
+          type: string
+          example: John Wick
+        schemas:
+          type: array
+          example:
+          - urn:ietf:params:scim:schemas:core:2.0:User
+          - urn:ietf:params:scim:schemas:extension:ibm:2.0:User
+        name:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Name"
+        urn:ietf:params:scim:schemas:extension:ibm:2.0:User:
+          "$ref": "#/components/schemas/UrnIETFParamsScimSchemasExtensionIBM20User"
+        active:
+          type: string
+          example: true
+        userName:
+          type: string
+          example: john@wick.com
+        phoneNumbers:
+          type: string
+          example:
+          - type: work
+            value: "(99) 98877-9988"
+      required:
+      - id
+      - emails
+      - meta
+      - displayName
+      - schemas
+      - name
+      - urn:ietf:params:scim:schemas:extension:ibm:2.0:User
+      - active
+      - userName
+      - phoneNumbers
